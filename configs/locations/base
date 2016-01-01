@@ -1,8 +1,7 @@
 
 index index.php index.html;
 
-include common/location_errors;
-include common/location_phpfpm;
-include common/location_static;
-include common/location_security;
-
+include locations/errors;
+include locations/phpfpm;
+include locations/static;
+include locations/security;

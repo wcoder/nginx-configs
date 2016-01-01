@@ -6,10 +6,9 @@
 location ~ /\. {
 	deny all;
 	access_log off;
-        log_not_found off;
+	log_not_found off;
 	return 404;
 }
-
 
 location ~* "/(backend|engine|inc|data|conf|config|bin|info|install|module|profile|theme)((/.*)?)$"
 {
@@ -17,17 +16,15 @@ location ~* "/(backend|engine|inc|data|conf|config|bin|info|install|module|profi
 	return 404;
 }
 
-
 # Only for nginx-naxsi used with nginx-naxsi-ui : process denied requests
 #location /RequestDenied {
 #	proxy_pass http://127.0.0.1:8080;    
 #}
 
-
 # Next configs from:
 # http://itbuben.org/blog/Unix-way/2806.html
 
-## Блокировка SQL-injections
+## Block of SQL-injections
 
 set $block_sql_injections 0;
 if ($query_string ~ "union.*select.*\(") {
@@ -43,7 +40,7 @@ if ($block_sql_injections = 1) {
 	return 403;
 }
 
-## Блокировка file-injections
+## Block of file-injections
 
 set $block_file_injections 0;
 if ($query_string ~ "[a-zA-Z0-9_]=http://") {
@@ -59,89 +56,90 @@ if ($block_file_injections = 1) {
 	return 403;
 }
 
-    ## Блокировка common-exploits
-    set $block_common_exploits 0;
-    if ($query_string ~ "(<|%3C).*script.*(>|%3E)") {
-        set $block_common_exploits 1;
-    }
-    if ($query_string ~ "GLOBALS(=|\[|\%[0-9A-Z]{0,2})") {
-        set $block_common_exploits 1;
-    }
-    if ($query_string ~ "_REQUEST(=|\[|\%[0-9A-Z]{0,2})") {
-        set $block_common_exploits 1;
-    }
-    if ($query_string ~ "proc/self/environ") {
-        set $block_common_exploits 1;
-    }
-    if ($query_string ~ "mosConfig_[a-zA-Z_]{1,21}(=|\%3D)") {
-        set $block_common_exploits 1;
-    }
-    if ($query_string ~ "base64_(en|de)code\(.*\)") {
-        set $block_common_exploits 1;
-    }
-    if ($block_common_exploits = 1) {
-        return 403;
-    }
+## Block of common-exploits
 
-## Блокировка спама
-    set $block_spam 0;
-    if ($query_string ~ "\b(ultram|unicauca|valium|viagra|vicodin|xanax|ypxaieo)\b") {
-        set $block_spam 1;
-    }
-    if ($query_string ~ "\b(erections|hoodia|huronriveracres|impotence|levitra|libido)\b") {
-        set $block_spam 1;
-    }
-    if ($query_string ~ "\b(ambien|blue\spill|cialis|cocaine|ejaculation|erectile)\b") {
-        set $block_spam 1;
-    }
-    if ($query_string ~ "\b(lipitor|phentermin|pro[sz]ac|sandyauer|tramadol|troyhamby)\b") {
-        set $block_spam 1;
-    }
-    if ($block_spam = 1) {
-        return 403;
-    }
+set $block_common_exploits 0;
+if ($query_string ~ "(<|%3C).*script.*(>|%3E)") {
+	set $block_common_exploits 1;
+}
+if ($query_string ~ "GLOBALS(=|\[|\%[0-9A-Z]{0,2})") {
+	set $block_common_exploits 1;
+}
+if ($query_string ~ "_REQUEST(=|\[|\%[0-9A-Z]{0,2})") {
+	set $block_common_exploits 1;
+}
+if ($query_string ~ "proc/self/environ") {
+	set $block_common_exploits 1;
+}
+if ($query_string ~ "mosConfig_[a-zA-Z_]{1,21}(=|\%3D)") {
+	set $block_common_exploits 1;
+}
+if ($query_string ~ "base64_(en|de)code\(.*\)") {
+	set $block_common_exploits 1;
+}
+if ($block_common_exploits = 1) {
+	return 403;
+}
 
-    ## Блокировка user-agents
-    set $block_user_agents 0;
+## Block of spam
 
-    # Если CMS не использует wget можно разкомментировать
-    #if ($http_user_agent ~ "Wget") {
-    #    set $block_user_agents 1;
-    #}
+set $block_spam 0;
+if ($query_string ~ "\b(ultram|unicauca|valium|viagra|vicodin|xanax|ypxaieo)\b") {
+	set $block_spam 1;
+}
+if ($query_string ~ "\b(erections|hoodia|huronriveracres|impotence|levitra|libido)\b") {
+	set $block_spam 1;
+}
+if ($query_string ~ "\b(ambien|blue\spill|cialis|cocaine|ejaculation|erectile)\b") {
+	set $block_spam 1;
+}
+if ($query_string ~ "\b(lipitor|phentermin|pro[sz]ac|sandyauer|tramadol|troyhamby)\b") {
+	set $block_spam 1;
+}
+if ($block_spam = 1) {
+	return 403;
+}
 
-    # Отключение Akeeba Remote Control 2.5 и более ранних версий
-    if ($http_user_agent ~ "Indy Library") {
-        set $block_user_agents 1;
-    }
+## Block of user-agents
+
+set $block_user_agents 0;
+
+# If your script not using wget
+#if ($http_user_agent ~ "Wget") {
+#    set $block_user_agents 1;
+#}
+
+# Disable Akeeba Remote Control 2.5-
+if ($http_user_agent ~ "Indy Library") {
+	set $block_user_agents 1;
+}
 
 
-
-    # Хакерские утилиты
-    if ($http_user_agent ~ "libwww-perl") {
-        set $block_user_agents 1;
-    }
-    if ($http_user_agent ~ "GetRight") {
-        set $block_user_agents 1;
-    }
-    if ($http_user_agent ~ "GetWeb!") {
-        set $block_user_agents 1;
-    }
-    if ($http_user_agent ~ "Go!Zilla") {
-        set $block_user_agents 1;
-    }
-    if ($http_user_agent ~ "Download Demon") {
-        set $block_user_agents 1;
-    }
-    if ($http_user_agent ~ "Go-Ahead-Got-It") {
-        set $block_user_agents 1;
-    }
-    if ($http_user_agent ~ "TurnitinBot") {
-        set $block_user_agents 1;
-    }
-    if ($http_user_agent ~ "GrabNet") {
-        set $block_user_agents 1;
-    }
-
-    if ($block_user_agents = 1) {
-        return 403;
-    }
+# Hacking tools
+if ($http_user_agent ~ "libwww-perl") {
+	set $block_user_agents 1;
+}
+if ($http_user_agent ~ "GetRight") {
+	set $block_user_agents 1;
+}
+if ($http_user_agent ~ "GetWeb!") {
+	set $block_user_agents 1;
+}
+if ($http_user_agent ~ "Go!Zilla") {
+	set $block_user_agents 1;
+}
+if ($http_user_agent ~ "Download Demon") {
+	set $block_user_agents 1;
+}
+if ($http_user_agent ~ "Go-Ahead-Got-It") {
+	set $block_user_agents 1;
+}
+if ($http_user_agent ~ "TurnitinBot") {
+	set $block_user_agents 1;
+}
+if ($http_user_agent ~ "GrabNet") {
+	set $block_user_agents 1;
+}
+if ($block_user_agents = 1) {
+	return 403;
+}

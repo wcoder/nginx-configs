@@ -1,5 +1,5 @@
 
-include common/location_base;
+include locations/base;
 
 location / {
 	try_files $uri $uri/ =404;
@@ -7,4 +7,3 @@ location / {
 	# Uncomment to enable naxsi on this location
 	# include /etc/nginx/naxsi.rules
 }
-

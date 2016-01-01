@@ -2,34 +2,34 @@
 # removes trailing slashes (prevents SEO duplicate content issues)
 if (!-d $request_filename)
 {
-       	rewrite ^/(.+)/$ /$1 permanent;
+	rewrite ^/(.+)/$ /$1 permanent;
 }
 
 # enforce NO www
 if ($host ~* ^www\.(.*))
 {
-      	set $host_without_www $1;
-       	rewrite ^/(.*)$ $scheme://$host_without_www/$1 permanent;
+	set $host_without_www $1;
+	rewrite ^/(.*)$ $scheme://$host_without_www/$1 permanent;
 }
 
 # canonicalize codeigniter url end points
 # if your default controller is something other than "welcome" you should change the following
 if ($request_uri ~* ^(/lobby(/index)?|/index(.php)?)/?$)
 {
-      	rewrite ^(.*)$ / permanent;
+	rewrite ^(.*)$ / permanent;
 }
 
 # removes trailing "index" from all controllers
 if ($request_uri ~* index/?$)
 {
-       	rewrite ^/(.*)/index/?$ /$1 permanent;
+	rewrite ^/(.*)/index/?$ /$1 permanent;
 }
 
 # unless the request is for a valid file (image, js, css, etc.), send to bootstrap
 if (!-e $request_filename)
 {
-      	rewrite ^/(.*)$ /index.php?/$1 last;
-       	break;
+	rewrite ^/(.*)$ /index.php?/$1 last;
+	break;
 }
 
 location /backend {
